@@ -2,6 +2,13 @@
 const ipc = require('electron').ipcRenderer;
 // The marked rendering library
 // var marked = require('marked');
+var asciidoctor = require('asciidoctor.js')();
+var opal = asciidoctor.Opal;
+
+function adoc(text) {
+  processor = asciidoctor.Asciidoctor(true);
+  return processor.$convert(text);
+}
 
 
 /**
@@ -11,7 +18,7 @@ const ipc = require('electron').ipcRenderer;
 ipc.on('file-contents', (event, contents) => {
     var editor = ace.edit("editor");
     editor.setValue(contents);
-    document.getElementById('previewText').innerHTML = marked(contents);
+    document.getElementById('previewText').innerHTML = adoc(contents);
     hljs.initHighlightingOnLoad();
 });
 
@@ -79,7 +86,7 @@ $(document).ready(function() {
     // Get Ace editor session
     var session = editor.getSession();
     // Set language
-    editor.getSession().setMode("ace/mode/markdown");
+    editor.getSession().setMode("ace/mode/asciidoc");
     // Set markeded renderer options
     marked.setOptions({
         renderer: new marked.Renderer(),
@@ -98,11 +105,11 @@ $(document).ready(function() {
     });
     // First initial render becuase of data injection from main process
     var text = editor.getValue();
-    document.getElementById('previewText').innerHTML = marked(text);
+    document.getElementById('previewText').innerHTML = adoc(text);
     // Continous render on every change as recognized by ace editor
     editor.getSession().on('change', function(e) {
         var text = editor.getValue();
-        document.getElementById('previewText').innerHTML = marked(text);
+        document.getElementById('previewText').innerHTML = adoc(text);
         hljs.initHighlightingOnLoad();
     });
 
